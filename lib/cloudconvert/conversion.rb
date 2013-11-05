@@ -27,7 +27,7 @@ module Cloudconvert
 
     	#cancels current conversion
     	def cancel_conversion
-    		response = @request_connection.get "/process/"+ @process_id.to_s +"cancel"
+    		response = @request_connection.get "/process/"+ @process_id.to_s +"/cancel"
             parse_response(response.body)
  
     	end
@@ -35,7 +35,7 @@ module Cloudconvert
 
     	#deletes finished conversion
 		def delete_conversion
-    		response = @request_connection.get "/process/"+ @process_id.to_s +"delete" 
+    		response = @request_connection.get "/process/"+ @process_id.to_s +"/delete" 
             parse_response(response.body)
     	end
 
