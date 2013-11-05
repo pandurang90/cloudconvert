@@ -6,10 +6,10 @@ require 'cloudconvert/version'
 Gem::Specification.new do |spec|
   spec.name          = "cloudconvert"
   spec.version       = Cloudconvert::VERSION
-  spec.authors       = ["Pandurang"]
+  spec.authors       = ["Pandurang Waghulde"]
   spec.email         = ["pandurang.plw@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = "Ruby wrapper for Cloud Convert"
+  spec.summary       = "Ruby wrapper for Cloud Convert"
   spec.homepage      = ""
   spec.license       = "MIT"
 

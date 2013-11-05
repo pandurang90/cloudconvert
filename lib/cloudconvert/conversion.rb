@@ -27,18 +27,22 @@ module Cloudconvert
 
     	#cancels current conversion
     	def cancel_conversion
-    		response = @request_connection.get "/process/"+ @process_id.to_s +"cancel" 
+    		response = @request_connection.get "/process/"+ @process_id.to_s +"cancel"
+            parse_response(response.body)
+ 
     	end
 
 
     	#deletes finished conversion
 		def delete_conversion
     		response = @request_connection.get "/process/"+ @process_id.to_s +"delete" 
+            parse_response(response.body)
     	end
 
     	#returns all possible conversions and options
     	def converter_options(inputformat, outputformat)
-    		@conn.conversion_connection.get path, {:inputformat => inputformat,:outputformat => outputformat } 
+    		response = @conn.conversion_connection.get path, {:inputformat => inputformat,:outputformat => outputformat } 
+            parse_response(response.body)
     	end
 
      
