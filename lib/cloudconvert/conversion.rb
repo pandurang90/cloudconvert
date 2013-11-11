@@ -10,13 +10,17 @@ module Cloudconvert
             end
     	end
 
-    	def convert(inputformat, outpuformat, file_path, callback , options = [])
+        
+        #file[:url] =>  input=download
+        #file[:path] => input=upload
+
+    	def convert(inputformat, outpuformat, file = {}, callback = nil, options = [])
             @convert_request_url = start_conversion(inputformat, outpuformat)
 
             #initiate connection with new response host
     		initiate_connection(@convert_request_url)
 
-            upload_params = build_upload_params(file_path, outputformat, email, callback, options)
+            upload_params = file[:url].present? ? build_link_params(file[:url], outputformat, callback , options) : build_upload_params(file[:path], outputformat, callback, options)
             upload(upload_params)
     	end
 
