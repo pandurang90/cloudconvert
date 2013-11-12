@@ -15,8 +15,8 @@ module Cloudconvert
             @convert_request_url = start_conversion(inputformat, outputformat)
             #initiate connection with new response host
     		initiate_connection(@convert_request_url)
-
-            upload_params = file[:url] != nil ? build_link_params(file[:url], outputformat, callback , options) : build_upload_params(file[:path], outputformat, callback, options)
+            binding.pry
+            upload_params = build_upload_params(file, outputformat, callback, options)
 
             upload(upload_params)
     	end
@@ -26,7 +26,7 @@ module Cloudconvert
 
             parsed_response = parse_response(response.body)
             @process_id = parsed_response["id"]
-            "https:#{parsed_response["host"]}"
+            "https://#{parsed_response['host']}"
         end
 
         def initiate_connection(url)
@@ -34,32 +34,13 @@ module Cloudconvert
         end
 
         #building params for local file
-        def build_upload_params(path, outputformat, callback = nil, options)
-            upload_params = { 
-                                :input => "upload",
-                                :file => path,
-                                :format => outputformat,
-                                :options => options
-                            }
-
+        def build_upload_params(file, outputformat, callback = nil, options)
+            upload_params = { :format => outputformat, :options => options}
             upload_params.merge(:callback => callback) if callback != nil
+            upload_params.merge(:input => "upload",:file => file[:url] ) if file[:url] != nil
+            upload_params.merge(:input => "download",:file => file[:path] ) if file[:url] != nil
             upload_params
         end
-
-        #building params for exteranl file link
-
-        def build_link_params(link, outputformat, callback = nil, options)
-            upload_params = { 
-                                :input => "download",
-                                :link => link,
-                                :format => outputformat,
-                                :options => options
-                            }
-
-            upload_params.merge(:callback => callback) if callback != nil
-            upload_params
-        end
-
 
         #lists all conversions
     	def list_conversions
@@ -69,14 +50,14 @@ module Cloudconvert
     		
 
     	#cancels current conversion
-    	def cancel_conversion
-    	   response = @request_connection.get "/process/#{@process_id.to_s}/cancel"
+    	def cancel_conversion(process_id)
+    	   response = @request_connection.get "/process/#{process_id.to_s}/cancel"
            parse_response(response.body)
     	end
 
     	#deletes finished conversion
 		def delete_conversion
-    		response = @request_connection.get "/process/#{@process_id.to_s}/delete" 
+    		response = @request_connection.get "/process/#{process_id.to_s}/delete" 
             parse_response(response.body)
     	end
 
@@ -86,8 +67,16 @@ module Cloudconvert
             parse_response(response.body)
         end
 
-        def status
-            response = @request_connection.get "/process/"+ @process_id.to_s
+
+        # checks if conversion finished for process id and returns download link
+        def download_link(process_id)
+            response = status(process_id)
+            response["step"] == "finished" ? "http:#{response['output']['url']}" : nil
+        end 
+
+        # checks status of conversion with process_id
+        def status(process_id)
+            response = @request_connection.get "/process/"+ process_id.to_s
             parse_response(response.body)
         end
 
