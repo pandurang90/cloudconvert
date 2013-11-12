@@ -58,7 +58,7 @@ module Cloudconvert
         end
 
     	#returns all possible conversions and options
-    	def converter_options(inputformat, outputformat)
+    	def converter_options(inputformat ="", outputformat = "")
     		response = @conversion_connection.get "conversiontypes", {:inputformat => inputformat,:outputformat => outputformat } 
             parse_response(response.body)
     	end
