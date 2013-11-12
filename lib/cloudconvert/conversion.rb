@@ -2,20 +2,17 @@ module Cloudconvert
 	class Conversion
     	attr_accessor :convert_request_url, :conn , :request_connection, :process_id
 
-    	def initialize(api_key)
-            if api_key.present? 
-    		  @conn = Connection.new(:api_key => api_key)
-            else
-                raise Cloudconvert::API_KEY_ERROR
-            end
+    	def initialize(api_key = nil)
+            raise Cloudconvert::API_KEY_ERROR if api_key == nil
+    		@conn = Connection.new(:api_key => api_key)
     	end
 
-        
+
         #file[:url] =>  input=download
         #file[:path] => input=upload
 
-    	def convert(inputformat, outpuformat, file = {}, callback = nil, options = [])
-            @convert_request_url = start_conversion(inputformat, outpuformat)
+    	def convert(inputformat, outputformat, file = {}, callback = nil, options = [])
+            @convert_request_url = start_conversion(inputformat, outputformat)
 
             #initiate connection with new response host
     		initiate_connection(@convert_request_url)
@@ -25,7 +22,7 @@ module Cloudconvert
     	end
 
         def start_conversion(inputformat, outputformat)
-            response = conversion_post_request(inputformat,outpuformat)
+            response = conversion_post_request(inputformat,outputformat)
             parsed_response = parse_response(response.body)
             parsed_response["host"]
         end
@@ -68,14 +65,13 @@ module Cloudconvert
 
     	#cancels current conversion
     	def cancel_conversion
-    		response = @request_connection.get "/process/"+ @process_id.to_s +"/cancel"
-            parse_response(response.body)
- 
+    	   response = @request_connection.get "/process/#{@process_id.to_s}/cancel"
+           parse_response(response.body)
     	end
 
     	#deletes finished conversion
 		def delete_conversion
-    		response = @request_connection.get "/process/"+ @process_id.to_s +"/delete" 
+    		response = @request_connection.get "/process/#{@process_id.to_s}/delete" 
             parse_response(response.body)
     	end
 
@@ -92,12 +88,12 @@ module Cloudconvert
 
     	#returns all possible conversions and options
     	def converter_options(inputformat, outputformat)
-    		response = @conn.conversion_connection.get path, {:inputformat => inputformat,:outputformat => outputformat } 
+    		response = @conn.conversion_connection.get "conversiontypes", {:inputformat => inputformat,:outputformat => outputformat } 
             parse_response(response.body)
     	end
 
     	#send conversion http request
-    	def conversion_post_request(path, inputformat, outputformat)
+    	def conversion_post_request(inputformat, outputformat)
     		@conn.conversion_connection.post "/process", {:inputformat => inputformat,:outputformat => outputformat, :apikey => @conn.api_key } 
     	end
 

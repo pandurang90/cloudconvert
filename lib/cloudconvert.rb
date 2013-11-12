@@ -1,4 +1,8 @@
 require "cloudconvert/version"
+require "cloudconvert/conversion"
+require "cloudconvert/connection"
+require "faraday"
+require "json"
 
 module Cloudconvert
   # Your code goes here...
