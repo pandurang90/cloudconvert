@@ -15,7 +15,6 @@ module Cloudconvert
             @convert_request_url = start_conversion(inputformat, outputformat)
             #initiate connection with new response host
     		initiate_connection(@convert_request_url)
-
             upload(build_upload_params(file_path, outputformat, options))
     	end
 
@@ -98,8 +97,7 @@ module Cloudconvert
         def build_upload_params(file_path, outputformat, options)
             upload_params = { :format => outputformat, :options => options}
             upload_params.merge(:callback => callback) if callback != nil
-            upload_params.merge(:input => "upload",:file => file_path ) 
-            upload_params
+            upload_params.merge(:input => "download",:link => file_path ) 
         end
 
     	def parse_response(response)

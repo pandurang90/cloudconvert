@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["pandurang.plw@gmail.com"]
   spec.description   = "Ruby wrapper for Cloud Convert"
   spec.summary       = "Ruby wrapper for Cloud Convert"
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/pandurang90/cloudconvert"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

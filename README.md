@@ -33,8 +33,12 @@ Start a Conversion on Cloud convert
 
 	conversion = Cloudconvert::Conversion.new
 
-	# to start file conversion
+	# to start file conversion (options parameter is optional)
 	conversion.convert(inputformat, outputformat, file_path, options)  
+
+	# options parameter is Conversion type specific options , which you can get from, 
+	conversion.converter_options(inputformat, outputformat)
+	#it will return all possible conversion types and possible options(inputformat and outputformat are optional)
 
 	# to list all cenversions
 	conversion.list_conversions
@@ -50,12 +54,6 @@ Start a Conversion on Cloud convert
 
 	# to get current status of conversion
 	conversion.status 													      
-
-	# will return all possible conversion types and possible options(inputformat and outputformat are optional)		
-	conversion.converter_options(inputformat, outputformat)					  
-
-
-TODO: Write usage instructions here
 
 ## Contributing
 
