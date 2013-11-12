@@ -10,7 +10,7 @@ module Cloudconvert
 		end
 
 		def connect
-			c = Faraday.new(:url => Cloudconvert::CONVERSION_URL)
+			Faraday.new(:url => Cloudconvert::CONVERSION_URL)
 		end
 
 	end

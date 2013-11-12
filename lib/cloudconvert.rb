@@ -3,6 +3,7 @@ require "cloudconvert/conversion"
 require "cloudconvert/connection"
 require "faraday"
 require "json"
+require "pry"
 
 module Cloudconvert
   # Your code goes here...
