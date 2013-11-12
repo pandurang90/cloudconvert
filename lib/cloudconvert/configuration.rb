@@ -1,10 +1,11 @@
 
 module Cloudconvert
   class Configuration
-    attr_accessor :api_key
+    attr_accessor :api_key, :callback
 
     def initialize
       api_key = nil
+      callback = nil
     end
     
   end

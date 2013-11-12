@@ -1,6 +1,7 @@
 require "cloudconvert/version"
+require "cloudconvert/configuration"
 require "cloudconvert/conversion"
-require "cloudconvert/connection"
+
 require "faraday"
 require "json"
 require "pry"
@@ -10,5 +11,6 @@ module Cloudconvert
   CONVERSION_URL = "https://api.cloudconvert.org/"
 
   API_KEY_ERROR = "API Key cant be blank!"
+  Cloudconvert.configure
 
 end

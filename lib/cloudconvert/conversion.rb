@@ -2,50 +2,22 @@ module Cloudconvert
 	class Conversion
     	attr_accessor :convert_request_url, :conn , :request_connection, :process_id, :conversion_connection
 
-    	def initialize
+        #request_connection => specific to file conversion
+
+    	def initialize 
             raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
     		@conversion_connection = Faraday.new(:url => Cloudconvert::CONVERSION_URL)
-
     	end
 
-        def api_key
-            raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
-            Cloudconvert.configuration.api_key
-        end
-
-
-        #file[:url] =>  input=download
-        #file[:path] => input=upload
-
-    	def convert(inputformat, outputformat, file = {}, callback = nil, options = [])
+        #convert request for file 
+    	def convert(inputformat, outputformat, file_path = nil, options = [])
+            raise "File path cant be blank" if file_path == nil
             @convert_request_url = start_conversion(inputformat, outputformat)
             #initiate connection with new response host
     		initiate_connection(@convert_request_url)
 
-            upload(build_upload_params(file, outputformat, callback, options))
+            upload(build_upload_params(file_path, outputformat, options))
     	end
-
-        def start_conversion(inputformat, outputformat)
-            response = conversion_post_request(inputformat,outputformat)
-
-            parsed_response = parse_response(response.body)
-            @process_id = parsed_response["id"]
-
-            "https://#{parsed_response['host']}"
-        end
-
-        def initiate_connection(url)
-            @request_connection = Faraday.new(:url => url)
-        end
-
-        #building params for local file
-        def build_upload_params(file, outputformat, callback = nil, options)
-            upload_params = { :format => outputformat, :options => options}
-            upload_params.merge(:callback => callback) if callback != nil
-            upload_params.merge(:input => "upload",:file => file[:url] ) if file[:url] != nil
-            upload_params.merge(:input => "download",:file => file[:path] ) if file[:url] == nil
-            upload_params
-        end
 
         #lists all conversions
     	def list_conversions
@@ -91,14 +63,52 @@ module Cloudconvert
             parse_response(response.body)
     	end
 
+
+        #######################################################################################################
+        #######################################################################################################
+        def api_key
+            return "YS2i9kINjqTHuxvJYuz_rPtHMpawQgS0PstF6Klu-VClG897vlfKNBX1TFgi4xfRDKBFkUz8foF-7BjxQBDooQ"
+            raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
+            Cloudconvert.configuration.api_key
+        end
+
+        def callback
+            Cloudconvert.configuration.callback
+        end
+
     	#send conversion http request
     	def conversion_post_request(inputformat, outputformat)
             @conversion_connection.post "https://api.cloudconvert.org/process?inputformat=#{inputformat}&outputformat=#{outputformat}&apikey=#{api_key}"
     	end
 
+        def start_conversion(inputformat, outputformat)
+            response = conversion_post_request(inputformat,outputformat)
+
+            parsed_response = parse_response(response.body)
+            @process_id = parsed_response["id"]
+
+            "https://#{parsed_response['host']}"
+        end
+
+        def initiate_connection(url)
+            @request_connection = Faraday.new(:url => url)
+        end
+
+        #building params for local file
+        def build_upload_params(file_path, outputformat, options)
+            upload_params = { :format => outputformat, :options => options}
+            upload_params.merge(:callback => callback) if callback != nil
+            upload_params.merge(:input => "upload",:file => file_path ) 
+            upload_params
+        end
+
     	def parse_response(response)
     		JSON.parse(response)
     	end
+
+        #######################################################################################################
+        #######################################################################################################
+
 	end
 	
 end
