@@ -27,18 +27,32 @@ Configure CloudConvert
 		config.callback = callback_url
 	end
 
-#In this if you specify callback_url then you will be notified on file conversion completion
+In this if you specify callback_url then you will be notified on file conversion completion
 
 Start a Conversion on Cloud convert
 
 	conversion = Cloudconvert::Conversion.new
-	conversion.convert(inputformat, outputformat, file_path, options)         # to start file conversion
-	conversion.list_conversions 											  # to list all cenversions
-	conversion.cancel_conversion 											  # to cancel conversion
-	conversion.delete_conversion 											  # to delete conversion
-	conversion.download_link 												  # to get download link of completed conversion
-	conversion.status 													      # to get current status of conversion
-	conversion.converter_options(inputformat, outputformat)					  # will return all possible conversion types and possible options(inputformat and outputformat are optional)		
+
+	# to start file conversion
+	conversion.convert(inputformat, outputformat, file_path, options)  
+
+	# to list all cenversions
+	conversion.list_conversions
+
+	# to cancel conversion 											  
+	conversion.cancel_conversion 	
+
+	# to delete conversion										  
+	conversion.delete_conversion
+
+	# to get download link of completed conversion
+	conversion.download_link 												  
+
+	# to get current status of conversion
+	conversion.status 													      
+
+	# will return all possible conversion types and possible options(inputformat and outputformat are optional)		
+	conversion.converter_options(inputformat, outputformat)					  
 
 
 TODO: Write usage instructions here
