@@ -1,6 +1,6 @@
 # Cloudconvert
 
-Ruby wrapper for CloudConvert[CloudConvert ](https://cloudconvert.org/page/api)
+Ruby wrapper for CloudConvert [CloudConvert ](https://cloudconvert.org/page/api)
 
 ## Installation
 
