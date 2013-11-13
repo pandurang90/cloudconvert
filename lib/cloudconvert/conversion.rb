@@ -66,7 +66,6 @@ module Cloudconvert
         #######################################################################################################
         #######################################################################################################
         def api_key
-            return "YS2i9kINjqTHuxvJYuz_rPtHMpawQgS0PstF6Klu-VClG897vlfKNBX1TFgi4xfRDKBFkUz8foF-7BjxQBDooQ"
             raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
             Cloudconvert.configuration.api_key
         end
