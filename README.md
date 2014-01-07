@@ -40,7 +40,7 @@ Start a Conversion on Cloud convert
 	conversion.converter_options(inputformat, outputformat)
 	#it will return all possible conversion types and possible options(inputformat and outputformat are optional)
 
-	# to list all cenversions
+	# to list all conversions
 	conversion.list_conversions
 
 	# to cancel conversion 											  
