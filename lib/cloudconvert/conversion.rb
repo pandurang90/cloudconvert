@@ -94,7 +94,7 @@ module Cloudconvert
 
         #building params for local file
         def build_upload_params(file_path, outputformat, options = {})
-            upload_params = { :format => outputformat, :options => options}
+            upload_params = { :format => outputformat}
             upload_params.merge!(:callback => callback) if callback != nil
             upload_params.merge!(:input => "download",:link => file_path ) 
             upload_params.merge!(options)
