@@ -15,3 +15,11 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
+
+*.xml
+
+.idea/.name
+
+.idea/.rakeTasks
+
+*.iml
