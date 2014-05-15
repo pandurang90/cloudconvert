@@ -34,6 +34,10 @@ Start a Conversion on Cloud convert
 	conversion = Cloudconvert::Conversion.new
 
 	# to start file conversion (options & callback_url parameters are optional)
+	# for versions <=0.0.4
+	conversion.convert(inputformat, outputformat, file_path, options)
+	
+	# for versions >=0.0.5
 	conversion.convert(inputformat, outputformat, file_path, callback_url, options)
 
 	# options parameter is Conversion type specific options , which you can get from, 
