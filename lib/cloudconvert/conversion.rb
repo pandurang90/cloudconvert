@@ -2,7 +2,7 @@ module Cloudconvert
 	class Conversion
     attr_accessor :convert_request_url, :conn , :request_connection, :process_id, :conversion_connection
 
-      #request_connection => specific to file conversion
+    #request_connection => specific to file conversion
 
     def initialize
           raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
@@ -67,8 +67,8 @@ module Cloudconvert
       Cloudconvert.configuration.api_key
     end
 
-    def callback
-      Cloudconvert.configuration.callback
+    def callback(callback_url = nil)
+      callback_url || Cloudconvert.configuration.callback
     end
 
     #send conversion http request
@@ -92,11 +92,7 @@ module Cloudconvert
     #building params for local file
     def build_upload_params(file_path, outputformat, callback_url = nil, options = {})
       upload_params = { :format => outputformat}
-      if callback_url != nil
-        upload_params.merge!(:callback => callback_url)
-      elsif callback != nil
-        upload_params.merge!(:callback => callback)
-      end
+      upload_params.merge!(:callback => callback(callback_url)) if callback(callback_url).present?
       upload_params.merge!(:input => "download",:link => file_path )
       upload_params.merge!(options)
     end
