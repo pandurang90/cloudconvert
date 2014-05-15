@@ -33,8 +33,8 @@ Start a Conversion on Cloud convert
 
 	conversion = Cloudconvert::Conversion.new
 
-	# to start file conversion (options parameter is optional)
-	conversion.convert(inputformat, outputformat, file_path, options)  
+	# to start file conversion (options & callback_url parameters are optional)
+	conversion.convert(inputformat, outputformat, file_path, callback_url, options)
 
 	# options parameter is Conversion type specific options , which you can get from, 
 	conversion.converter_options(inputformat, outputformat)
