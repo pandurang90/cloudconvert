@@ -1,105 +1,81 @@
 module Cloudconvert
+	# cloudconvert.org API wrapper
 	class Conversion
-    attr_accessor :convert_request_url, :conn , :request_connection, :process_id, :conversion_connection
+		def initialize(input_format , output_format)
+			@input_format = input_format
+			@output_format = output_format
+		end
 
-    #request_connection => specific to file conversion
+		def newProcess
+			new_process_url = '/process'
+			payload = {
+				apikey: Cloudconvert.configuration.api_key,
+				inputformat: @input_format,
+				outputformat: @output_format
+			} if formats_defined?
+			callback_url = Cloudconvert.configuration.callback
+			payload[:callback] = callback_url unless callback_url.nil?
 
-    def initialize
-          raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
-      @conversion_connection = Faraday.new(:url => Cloudconvert::CONVERSION_URL)
-    end
+			@proc_response ||= client.post(new_process_url, payload)
+			puts @proc_response
+			@processURL ||= @proc_response['url']
+		end
 
-      #convert request for file
-    def convert(inputformat, outputformat, file_path, callback_url = nil, options = {})
-      raise "File path cant be blank" if file_path.nil?
-      @convert_request_url = start_conversion(inputformat, outputformat)
-      #initiate connection with new response host
-      initiate_connection(@convert_request_url)
-      upload(build_upload_params(file_path, outputformat, callback_url, options))
-    end
+		def conversion_payload(options = {})
+			@conv_payload = {
+				input: "download",
+				outputformat: @output_format
+			}
+			@conv_payload.merge!(options)
+		end
 
-      #lists all conversions
-    def list_conversions
-       response = @conversion_connection.get '/processes', {:apikey => api_key }
-       parse_response(response.body)
-    end
+		def remoteFile
+			@remote = client.post(@processURL, @conv_payload)
+		end
 
+		def status
+			client.get(@processURL)
+		end
 
-    #cancels current conversion
-    def cancel_conversion
-      response = @request_connection.get "/process/#{@process_id.to_s}/cancel"
-      parse_response(response.body)
-    end
+		def cancel
+			client.get("#{@processURL}/cancel")
+		end
 
-    #deletes finished conversion
-    def delete_conversion
-      response = @request_connection.get "/process/#{@process_id.to_s}/delete"
-      parse_response(response.body)
-    end
+		def delete
+			client.get("#{@processURL}/delete")
+		end
 
-    #upload request
-    def upload(upload_params)
-      response = @request_connection.post "/process/#{@process_id.to_s}", upload_params
-      parse_response(response.body)
-    end
+		def list
+			client.get("/processes?apikey=#{Cloudconvert.configuration.api_key}")
+		end
 
+		def conversion_types(input_format = '', output_format = '')
+			uri = "/conversiontypes"
 
-    # checks if conversion finished for process id and returns download link
-    def download_link
-      response = status
-      response["step"] == "finished" ? "http:#{response['output']['url']}" : nil
-    end
+			if (!input_format.empty? && !output_format.empty?)
+				uri += "?inputformat=#{input_format}&outputformat=#{output_format}"
+			elsif !input_format.empty?
+				uri += "?inputformat=#{input_format}"
+			elsif !output_format.empty?
+				uri += "?output_format=#{output_format}"
+			end
 
-    # checks status of conversion with process_id
-    def status
-      response = @request_connection.get "/process/#{@process_id.to_s}"
-      parse_response(response.body)
-    end
+			client.get(uri)
+		end
 
-    #returns all possible conversions and options
-    def converter_options(inputformat ="", outputformat = "")
-      response = @conversion_connection.get "conversiontypes", {:inputformat => inputformat,:outputformat => outputformat }
-      parse_response(response.body)
-    end
+		def current_conversion_types
+			client.get("/conversiontypes?inputformat=#{@input_format}&outputformat=#{@output_format}")
+		end
 
-    def api_key
-      raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
-      Cloudconvert.configuration.api_key
-    end
+		private
 
-    def callback(callback_url = nil)
-      callback_url || Cloudconvert.configuration.callback
-    end
+			def client
+				@client ||= Cloudconvert::Client.new
+			end
 
-    #send conversion http request
-    def conversion_post_request(inputformat, outputformat)
-        @conversion_connection.post "https://api.cloudconvert.org/process?inputformat=#{inputformat}&outputformat=#{outputformat}&apikey=#{api_key}"
-    end
-
-    def start_conversion(inputformat, outputformat)
-      response = conversion_post_request(inputformat,outputformat)
-
-      parsed_response = parse_response(response.body)
-      @process_id = parsed_response["id"]
-
-      "https://#{parsed_response['host']}"
-    end
-
-    def initiate_connection(url)
-      @request_connection = Faraday.new(:url => url)
-    end
-
-    #building params for local file
-    def build_upload_params(file_path, outputformat, callback_url = nil, options = {})
-      upload_params = { :format => outputformat}
-      upload_params.merge!(:callback => callback(callback_url)) if callback(callback_url).present?
-      upload_params.merge!(:input => "download",:link => file_path )
-      upload_params.merge!(options)
-    end
-
-    def parse_response(response)
-      JSON.parse(response)
-    end
-
+			def formats_defined?
+				raise "Conversion formats not defined!" if (@input_format.empty? || @output_format.empty?)
+				true
+			end
 	end
 end
