@@ -30,7 +30,11 @@ module Cloudconvert
 		end
 
 		def remoteFile
-			@remote = client.post(@processURL, @conv_payload)
+			remote = client.post(@processURL, @conv_payload)
+		end
+
+		def uploadFile
+			upfile = upload.post(@processURL, @conv_payload)
 		end
 
 		def status
@@ -71,6 +75,10 @@ module Cloudconvert
 
 			def client
 				@client ||= Cloudconvert::Client.new
+			end
+
+			def upload
+				@upload ||= Cloudconvert::Upload.new
 			end
 
 			def formats_defined?
