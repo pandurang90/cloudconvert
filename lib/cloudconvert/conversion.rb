@@ -17,7 +17,6 @@ module Cloudconvert
 			payload[:callback] = callback_url unless callback_url.nil?
 
 			@proc_response ||= client.post(new_process_url, payload)
-			puts @proc_response
 			@processURL ||= @proc_response['url']
 		end
 
@@ -29,16 +28,24 @@ module Cloudconvert
 			@conv_payload.merge!(options)
 		end
 
-		def remoteFile
-			remote = client.post(@processURL, @conv_payload)
+		def request
+			client.post(@processURL, @conv_payload)
 		end
 
-		def uploadFile
-			upfile = upload.post(@processURL, @conv_payload)
+		def post_file(file, mime_type)
+			Faraday::UploadIO.new(file, mime_type)
+		end
+
+		def upload_file
+			upload.post(@processURL, @conv_payload)
 		end
 
 		def status
 			client.get(@processURL)
+		end
+
+		def step
+			status['step']
 		end
 
 		def cancel
@@ -69,6 +76,11 @@ module Cloudconvert
 
 		def current_conversion_types
 			client.get("/conversiontypes?inputformat=#{@input_format}&outputformat=#{@output_format}")
+		end
+
+		def download_link
+			current_status = status
+			current_status['output']['url'] if current_status['step'] == "finished"
 		end
 
 		private

@@ -1,5 +1,5 @@
 module Cloudconvert
-  # TODO: find some way to refactor to DRY this up
+  # TODO: DRY this up?
   class Client
     # Faraday middleware
     def initialize
@@ -8,7 +8,7 @@ module Cloudconvert
       @conn ||= Faraday.new(url: Cloudconvert::CONVERSION_URL) do |faraday|
         faraday.request 			:json
         faraday.response			:json, content_type: /\bjson$/
-        faraday.response			:logger
+        # faraday.response			:logger
         faraday.adapter 			Faraday.default_adapter
       end
     end
@@ -24,13 +24,12 @@ module Cloudconvert
 
   class Upload
     def initialize
-      raise API_KEY_ERROR if Cloudconvert.configuration.api_key.nil?
 
       @up ||= Faraday.new(url: Cloudconvert::CONVERSION_URL) do |faraday|
         faraday.request 			:multipart
         faraday.request 			:url_encoded
         faraday.response			:json, content_type: /\bjson$/
-        faraday.response			:logger
+        # faraday.response			:logger
         faraday.adapter 			Faraday.default_adapter
       end
     end
