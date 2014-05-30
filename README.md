@@ -16,48 +16,239 @@ Or install it yourself as:
 
     $ gem install cloudconvert
 
-## Usage
+## Configuration
 
-This is a Ruby wrapper for Cloud Convert where you can convert files from one format to another format.
-	
+This is a Ruby wrapper for [Cloud Convert](http:/cloudconvert.org) where you can convert files from one format to another format.
+
+```ruby
 Configure CloudConvert
-	
+
 	Cloudconvert.configure do |config|
 		config.api_key  = your_api_key
+
+    # optional - can be added to payload anytime
 		config.callback = callback_url
 	end
+```
 
-In this if you specify callback_url then you will be notified on file conversion completion
+By providing a callback URL when starting the conversion, it is possible to get notified when the conversion is finished. When the conversion completed (or ended with an error), the following GET request will be executed: ` callback url?id=....&url=...`
 
-Start a Conversion on Cloud convert
+If you want to use AWS S3 for your conversion, create an IAM user with **s3:GetObject** and **s3:PutObject** rights. Indicate it's credentials in the configuration or directly in the payload.
 
-	conversion = Cloudconvert::Conversion.new
+## Usage
 
-	# to start file conversion (options & callback_url parameters are optional)
-	# for versions <=0.0.4
-	conversion.convert(inputformat, outputformat, file_path, options)
-	
-	# for versions >=0.0.5 (callback_url passing enabled for each conversion)
-	conversion.convert(inputformat, outputformat, file_path, callback_url, options)
+The [cloudconvert API](https://cloudconvert.org/page/api#overview) list all options you can pass to a payload (a simple Hash)
 
-	# options parameter is Conversion type specific options , which you can get from, 
-	conversion.converter_options(inputformat, outputformat)
-	#it will return all possible conversion types and possible options(inputformat and outputformat are optional)
+In the examples below, replace these `<entries>` with your data.
 
-	# to list all conversions
-	conversion.list_conversions
+### Remote hosted file conversion
 
-	# to cancel conversion 											  
-	conversion.cancel_conversion 	
+```ruby
+#!/usr/bin/env ruby
+# Example:
+#
+# Convert remote web hosted document from markdown to pdf
+# with: - email confirmation
+#       - dropbox delivery
 
-	# to delete conversion										  
-	conversion.delete_conversion
+require 'cloudconvert'
 
-	# to get download link of completed conversion
-	conversion.download_link 												  
+# Configure
+Cloudconvert.configure do |config|
+    config.api_key  = '<your api key>'
+end
 
-	# to get current status of conversion
-	conversion.status 													      
+# Create a new process
+conv = Cloudconvert::Conversion.new('md', 'pdf')
+conv.newProcess
+
+# Create conversion payload
+# Remove dropbox if you didn't link it
+conversion_options = {
+  file: '<http://example.com/file.md>',
+  filename: 'file.md',
+  email: '1',
+  output: 'dropbox'
+}
+
+conv.conversion_payload(conversion_options)
+
+# Execute request
+conv.request
+
+# Follow process
+step = conv.step
+
+until (step =~ /error|finished/)
+  step = conv.step
+  puts step
+  sleep 1
+end
+
+# You should receive an email and your dropbox should sync
+puts "File conerted successfully, url:'http:#{conv.download_link}'" if step == "finished"
+puts "Conversion failed" if step == "error"
+
+```
+
+### Local file upload
+
+```ruby
+#!/usr/bin/env ruby
+# Example:
+#
+# Convert remote web hosted document from markdown to pdf
+# with: - email confirmation
+#       - dropbox delivery
+
+require 'cloudconvert'
+
+# Configure
+Cloudconvert.configure do |config|
+    config.api_key  = '<your api key>'
+end
+
+# Create a new process
+conv = Cloudconvert::Conversion.new('md', 'pdf')
+conv.newProcess
+
+# Create an uploadable file
+# Arguments:
+# - UNIX file path
+# - mime type
+
+post_file = conv.post_file('<file path>', 'text/x-markdown')
+
+# Create payload
+conversion_options = {
+  input: 'upload',          # needs to be specified - default is 'download' input
+  file: post_file,
+  filename: 'toto.md',
+  email: '1',
+  output: 'dropbox'
+}
+
+conv.conversion_payload(conversion_options)
+
+# Execute request
+conv.upload_file
+
+# Follow process
+step = conv.step
+
+until (step =~ /error|finished/)
+  step = conv.step
+  puts step
+  sleep 1
+end
+
+# You should receive an email and your dropbox should sync
+puts "File conerted successfully, url:'http:#{conv.download_link}'" if step == "finished"
+puts "Conversion failed" if step == "error"
+
+```
+
+### Amazon AWS S3
+
+```ruby
+#!/usr/bin/env ruby
+# Example:
+#
+# Convert remote web hosted document from markdown to pdf
+# with: - email confirmation
+#       - dropbox delivery
+
+require 'cloudconvert'
+
+# Configure
+Cloudconvert.configure do |config|
+    config.api_key  = '<your api key>'
+end
+
+# Create a new process
+conv = Cloudconvert::Conversion.new('md', 'pdf')
+conv.newProcess
+
+# Create a Hash containing you credentials and desired bucket
+# For the sake of simplicity, we'll use the same bucket for input and output,
+# but you could very well create differents3ID_input and s3ID_output hashes if
+# the output should go to a different bucket.
+# Region is optional.
+s3ID = {
+  accesskeyid: "<YOUR ACCESS KEY ID>",
+  secretaccesskey: "<YOUR SECRET ACCESS KEY>",
+  bucket: "<YOUR BUCKET NAME>"
+}
+
+# create payload
+conversion_options = {
+    input: {
+      s3: s3ID
+    },
+    file: "toto.md",
+    filename: 'toto.md',
+    outputformat: "pdf",
+    output: {
+        s3: s3ID
+    },
+}
+
+conv.conversion_payload(conversion_options)
+
+# Execute request
+conv.request
+
+# Follow process
+step = conv.step
+
+until (step =~ /error|finished/)
+  step = conv.step
+  puts step
+  sleep 1
+end
+
+# You should receive an email and your dropbox should sync
+puts "File conerted successfully" if step == "finished"
+puts "Conversion failed" if step == "error"
+```
+
+### More commands
+
+```ruby
+  conv.conversion_types('format1', 'format2')
+
+  # input format options
+  conv.conversion_types('format1')
+
+  # output format options
+  conv.conversion_types('', 'format2')
+```
+
+List all options for the conversion.
+
+```ruby
+  conv.current_conversion_types
+```
+
+List all options for the conversion as specified with conv.process('format', 'format2')
+
+```ruby
+  conv.list
+```
+
+List all conversions
+
+```ruby
+  conv.delete
+```
+
+Delete current conversion
+
+```ruby
+  conv.cancel
+```
+
+Cancle current conversion
 
 ## Contributing
 
