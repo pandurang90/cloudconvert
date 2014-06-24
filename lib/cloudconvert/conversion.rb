@@ -91,12 +91,13 @@ module Cloudconvert
 
     #building params for local file
     def build_upload_params(file_path, outputformat, callback_url = nil, options = {})
+      callback_url = callback(callback_url)
       upload_params = { :format => outputformat}
-      upload_params.merge!(:callback => callback(callback_url)) if callback(callback_url).present?
+      upload_params.merge!(:callback => callback_url) if callback_url && !callback_url.strip.empty?
       upload_params.merge!(:input => "download",:link => file_path )
       upload_params.merge!(options)
     end
-
+    
     def parse_response(response)
       JSON.parse(response)
     end
