@@ -1,15 +1,15 @@
 module Cloudconvert
-	class Conversion
+  class Conversion
     attr_accessor :convert_request_url, :conn , :request_connection, :process_id, :conversion_connection
 
     #request_connection => specific to file conversion
 
     def initialize
-          raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
+      raise Cloudconvert::API_KEY_ERROR if Cloudconvert.configuration.api_key == nil
       @conversion_connection = Faraday.new(:url => Cloudconvert::CONVERSION_URL)
     end
 
-      #convert request for file
+    #convert request for file
     def convert(inputformat, outputformat, file_path, callback_url = nil, options = {})
       raise "File path cant be blank" if file_path.nil?
       @convert_request_url = start_conversion(inputformat, outputformat)
@@ -18,10 +18,10 @@ module Cloudconvert
       upload(build_upload_params(file_path, outputformat, callback_url, options))
     end
 
-      #lists all conversions
+    #lists all conversions
     def list_conversions
-       response = @conversion_connection.get '/processes', {:apikey => api_key }
-       parse_response(response.body)
+      response = @conversion_connection.get '/processes', {:apikey => api_key }
+      parse_response(response.body)
     end
 
 
@@ -73,7 +73,7 @@ module Cloudconvert
 
     #send conversion http request
     def conversion_post_request(inputformat, outputformat)
-        @conversion_connection.post "https://api.cloudconvert.org/process?inputformat=#{inputformat}&outputformat=#{outputformat}&apikey=#{api_key}"
+      @conversion_connection.post "https://api.cloudconvert.org/process?inputformat=#{inputformat}&outputformat=#{outputformat}&apikey=#{api_key}"
     end
 
     def start_conversion(inputformat, outputformat)
@@ -100,6 +100,6 @@ module Cloudconvert
     def parse_response(response)
       JSON.parse(response)
     end
-
-	end
+    
+  end
 end
