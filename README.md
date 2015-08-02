@@ -1,6 +1,34 @@
 # Cloudconvert
 
-Ruby wrapper for CloudConvert [CloudConvert ](https://cloudconvert.org/page/api)
+home
+: <https://github.com/pandurang90/cloudconvert/>
+
+code
+: <https://github.com/pandurang90/cloudconvert/>
+
+bugs
+: <https://github.com/pandurang90/cloudconvert/issues>
+
+rdoc
+: <http://rdoc.info/gems/cloudconvert/>
+
+travis
+: [![build status][travis-image]][travis-link]
+
+coveralls
+: [![coverage status][coveralls-image]][coveralls-link]
+
+## Description
+
+This library wraps the [CloudConvert](https://cloudconvert.org/)
+[API](https://cloudconvert.org/page/api) to convert files from one format to
+another format.
+
+## Synopsis
+
+```ruby
+x
+```
 
 ## Installation
 
@@ -18,26 +46,46 @@ Or install it yourself as:
 
 ## Configuration
 
-This is a Ruby wrapper for [Cloud Convert](http:/cloudconvert.org) where you can convert files from one format to another format.
-
 ```ruby
-Configure CloudConvert
+Cloudconvert.configure do |config|
+  config.api_key  = your_api_key
 
-	Cloudconvert.configure do |config|
-		config.api_key  = your_api_key
+  # Optional - can be added to a payload anytime
+  config.callback = callback_url
 
-    # optional - can be added to payload anytime
-		config.callback = callback_url
-	end
+  # Optional - turns on request logging
+  config.debug    = true
+end
 ```
 
-By providing a callback URL when starting the conversion, it is possible to get notified when the conversion is finished. When the conversion completed (or ended with an error), the following GET request will be executed: ` callback url?id=....&url=...`
+See Cloudconvert::Configure for information about support for multiple
+configurations.
 
-If you want to use AWS S3 for your conversion, create an IAM user with **s3:GetObject** and **s3:PutObject** rights. Indicate it's credentials in the configuration or directly in the payload.
+### Callback URLs
+
+The `Configuration#callback` URL can be used to receive notifications when the
+conversion is finished (successful or unsuccessful). At the completion of the
+conversion, CloudConvert will send a GET request to the provided URL with the
+following parameters:
+
+  * `id`: The process ID of the finished conversion.
+  * `url`: The process URL. You should call this URL for detailed information,
+    like the download URL of the output file.
+  * `step`: This can be either `finished` or `error`.
+
+See the CloudConvert
+[documentation](https://cloudconvert.org/page/api#callback) for full details.
+
+### Amazon S3
+
+If you want to use AWS S3 for your conversion, create an IAM user with
+**s3:GetObject** and **s3:PutObject** rights. Indicate its credentials in the
+configuration or directly in the payload.
 
 ## Usage
 
-The [cloudconvert API](https://cloudconvert.org/page/api#overview) list all options you can pass to a payload (a simple Hash)
+The [CloudConvert API](https://cloudconvert.org/page/api#overview) lists all
+options you can pass to a payload (a simple Hash)
 
 In the examples below, replace these `<entries>` with your data.
 
@@ -60,7 +108,7 @@ end
 
 # Create a new process
 conv = Cloudconvert::Conversion.new('md', 'pdf')
-conv.newProcess
+conv.new_process
 
 # Create conversion payload
 # Remove dropbox if you didn't link it
@@ -86,7 +134,7 @@ until (step =~ /error|finished/)
 end
 
 # You should receive an email and your dropbox should sync
-puts "File conerted successfully, url:'http:#{conv.download_link}'" if step == "finished"
+puts "File converted successfully, url:'http:#{conv.download_link}'" if step == "finished"
 puts "Conversion failed" if step == "error"
 
 ```
@@ -110,7 +158,7 @@ end
 
 # Create a new process
 conv = Cloudconvert::Conversion.new('md', 'pdf')
-conv.newProcess
+conv.new_process
 
 # Create an uploadable file
 # Arguments:
@@ -143,7 +191,7 @@ until (step =~ /error|finished/)
 end
 
 # You should receive an email and your dropbox should sync
-puts "File conerted successfully, url:'http:#{conv.download_link}'" if step == "finished"
+puts "File converted successfully, url:'http:#{conv.download_link}'" if step == "finished"
 puts "Conversion failed" if step == "error"
 
 ```
@@ -167,7 +215,7 @@ end
 
 # Create a new process
 conv = Cloudconvert::Conversion.new('md', 'pdf')
-conv.newProcess
+conv.new_process
 
 # Create a Hash containing you credentials and desired bucket
 # For the sake of simplicity, we'll use the same bucket for input and output,
@@ -208,7 +256,7 @@ until (step =~ /error|finished/)
 end
 
 # You should receive an email and your dropbox should sync
-puts "File conerted successfully" if step == "finished"
+puts "File converted successfully" if step == "finished"
 puts "Conversion failed" if step == "error"
 ```
 
@@ -248,12 +296,9 @@ Delete current conversion
   conv.cancel
 ```
 
-Cancle current conversion
+Cancel current conversion
 
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+[travis-image]: https://travis-ci.org/pandurang90/cloudconvert.png
+[travis-link]: https://travis-ci.org/pandurang90/cloudconvert
+[coveralls-image]: https://coveralls.io/repos/pandurang90/cloudconvert/badge.png
+[coveralls-link]: https://coveralls.io/r/pandurang90/cloudconvert

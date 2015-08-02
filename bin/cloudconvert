@@ -1,0 +1,33 @@
+#! /usr/bin/env ruby
+
+begin
+  require 'cloudconvert'
+rescue LoadError
+  $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+  require 'cloudconvert'
+end
+
+Cloudconvert.configure do |config|
+  config.api_key = ENV['CLOUD_CONVERT_API_KEY']
+end
+
+input_file    = ARGV[0]
+output_format = ARGV[1].gsub(/\A\./, '')
+
+converter = Cloudconvert.converter do |process|
+  process.upload File.expand_path(input_file)
+  process.output_format output_format
+end
+
+puts <<-EOS
+Converting #{input_file}
+      from #{converter.payload.input_format}
+        to #{output_format}
+EOS
+
+converter.run do |status, process|
+  puts status['step']
+end
+
+puts converter.step
+puts converter.download_link
