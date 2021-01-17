@@ -3,7 +3,7 @@
 
 # Cloudconvert
 
-Ruby wrapper for the [CloudConvert API v1](https://cloudconvert.org/page/api)
+Ruby wrapper for the [CloudConvert API v1](https://cloudconvert.com/api/v1)
 
 ## Installation
 
