@@ -1,12 +1,15 @@
+> ⚠️ This wrapper is deprecated. There is an official [Ruby SDK](https://github.com/cloudconvert/cloudconvert-ruby) for API v2 available in meantime.
+
+
 # Cloudconvert
 
-Ruby wrapper for CloudConvert [CloudConvert ](https://cloudconvert.org/page/api)
+Ruby wrapper for the [CloudConvert API v1](https://cloudconvert.org/page/api)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'cloudconvert'
+    gem 'cloudconvert', '0.0.5'
 
 And then execute:
 
@@ -14,7 +17,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install cloudconvert
+    $ gem install cloudconvert -v 0.0.5
 
 ## Usage
 
